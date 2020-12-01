@@ -1,0 +1,12 @@
+{
+  "name": "adventofcode",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "generate-template-files": "^3.0.0"
+  },
+  "scripts": {
+    "new-day": "node ./tools/generateNewDay"
+  }
+}
