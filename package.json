@@ -7,6 +7,7 @@
     "generate-template-files": "^3.0.0"
   },
   "scripts": {
-    "new-day": "node ./tools/generateNewDay"
+    "new": "node ./tools/generateNewDay",
+    "start": "node ./tools/runDay"
   }
 }
