@@ -27,7 +27,7 @@ function binarySpacePart() {
 
         ids.push(maxRow * 8 + maxColumn); 
     }
-    return ids.sort();
+    return ids.sort((a, b) => a - b);
 }
 
 function part1() {    
