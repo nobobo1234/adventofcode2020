@@ -13,6 +13,7 @@ class Graph {
     constructor() {
         this.edges = new Map();
         this.nodes = [];
+        this.outerEdges = new Set();
     }
 
     addNode(name) {
@@ -24,23 +25,40 @@ class Graph {
         this.edges.get(node2).push(node1);
     }
 
-    dfs(node) {
-
+    traverseUp(node) {
+        if (this.edges.get(node).length) {
+            for (const childNode of this.edges.get(node)) {
+                this.traverseUp(childNode);
+            }
+        } else {
+            this.outerEdges.add(node);
+        }
     }
 }
 
 function part1() {
     const graph = new Graph();
-    for (const rule of input) {
-        graph.addNode(rule[0]);
-        const contains = rule[1].split(', ').map(e => e.slice(2))
+    for (let rule of input) {
+        rule[0] = rule[0].endsWith('s') ? rule[0].slice(0, -1) : rule[0];
+        if (!graph.edges.has(rule[0])) {
+            graph.addNode(rule[0]);
+        }
+        const contains = rule[1].split(', ')
+            .map(e => e.slice(2))
+            .map(e => e.endsWith('s') ? e.slice(0, -1) : e);
         for (const bag of contains) {
-            graph.addNode(bag);
+            if (bag === ' other bag') {
+                continue;
+            }
+            if (!graph.edges.has(bag)) {
+                graph.addNode(bag);
+            }
             graph.addEdge(rule[0], bag);
         }
     }
+    graph.traverseUp('shiny gold bag');
 
-    return;
+    return graph.outerEdges.size;
 }
 
 function part2() {
