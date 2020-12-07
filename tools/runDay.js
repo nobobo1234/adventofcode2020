@@ -12,5 +12,5 @@ try {
     if (error.code == 'MODULE_NOT_FOUND') {
         throw new Error('The specified day is not found')
     }
-    throw new Error(`Something happened:\n${error}`);
+    throw new Error(`Something happened:\n${error.stack}`);
 }
