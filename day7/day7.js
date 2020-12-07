@@ -27,10 +27,9 @@ class Graph {
 
     traverseUp(node) {
         if (this.edges.get(node).length) {
-            for (const childNode of this.edges.get(node)) {
-                this.outerEdges.add(node);
-                this.total += childNode[1];
-                this.traverseUp(childNode[0]);
+            for (const parentNode of this.edges.get(node)) {
+                this.outerEdges.add(parentNode[0]);
+                this.traverseUp(parentNode[0]);
             }
         } else {
             this.outerEdges.add(node);
@@ -50,24 +49,23 @@ function part1() {
         for (const bag of contains) {
             const bagName = bag.slice(2);
             const bagNumber = Number(bag.slice(0, 1));
-            if (bag === ' other bag') {
+            if (bagName === ' other bag') {
                 continue;
             }
-            if (!graph.edges.has(bag)) {
-                graph.addNode(bag);
-                console.log(graph.edges.get(bagName))
+            if (!graph.edges.has(bagName)) {
+                graph.addNode(bagName);
 
             }
             graph.addEdge(rule[0], bagName, bagNumber);
         }
     }
     graph.traverseUp('shiny gold bag');
+    console.log(graph.total);
 
-    return graph.outerEdges.size - 1; // Also counts shiny gold, so do not count it
+    return graph.outerEdges.size;
 }
 
 function part2() {
-    return;
 }
 
 console.log('The answer to day 7 part 1 is:', part1());
