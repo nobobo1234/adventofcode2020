@@ -13,6 +13,7 @@ class Graph {
         this.edges = new Map();
         this.nodes = [];
         this.outerEdges = new Set();
+        this.lastEdge = [];
         this.total = 0;
     }
 
@@ -35,10 +36,30 @@ class Graph {
             this.outerEdges.add(node);
         }
     }
+
+    traverseUntilGold(node, depth, total) {
+        if (node !== 'shiny gold bag') {
+            for (const parentNode of this.edges.get(node)) {
+                this.traverseUntilGold(parentNode[0], depth + 1, total.set(depth, [node, parentNode[1]]));
+            }
+        } else {
+            const allValues = [...total.values()].reverse();
+            console.log(allValues);
+            while (allValues.length) {
+                if (allValues.length === 1) {
+                    this.lastEdge.push(allValues[0]);
+                }
+                this.total += allValues.reduce((prev, acc) => prev * acc[1], 1);
+                allValues.shift();
+            }
+        }
+    }
 }
 
+const graph = new Graph();
+let containsNoOtherBag = [];
+
 function part1() {
-    const graph = new Graph();
     for (let rule of input) {
         rule[0] = rule[0].endsWith('s') ? rule[0].slice(0, -1) : rule[0];
         if (!graph.edges.has(rule[0])) {
@@ -50,7 +71,7 @@ function part1() {
             const bagName = bag.slice(2);
             const bagNumber = Number(bag.slice(0, 1));
             if (bagName === ' other bag') {
-                continue;
+                containsNoOtherBag.push(rule[0]);
             }
             if (!graph.edges.has(bagName)) {
                 graph.addNode(bagName);
@@ -60,12 +81,15 @@ function part1() {
         }
     }
     graph.traverseUp('shiny gold bag');
-    console.log(graph.total);
 
     return graph.outerEdges.size;
 }
 
 function part2() {
+    for (const specialBag of containsNoOtherBag) {
+        graph.traverseUntilGold(specialBag, 1, new Map())
+    }
+    return graph.total;
 }
 
 console.log('The answer to day 7 part 1 is:', part1());
