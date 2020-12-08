@@ -14,6 +14,7 @@ class Graph {
         this.nodes = [];
         this.outerEdges = new Set();
         this.edgesDown = new Map();
+        this.nodeSums = new Map();
         this.total = 0;
     }
 
@@ -39,22 +40,15 @@ class Graph {
         }
     }
 
-    traverseUntilGold(node) {
-        if (this.edgesDown.get(node[0])[0][0] !== ' other bag') {
-            this.total += node[1] * this.edgesDown.get(node[0]).reduce((acc, curr) => acc + curr[1], 0);
-            for (const childNode of this.edgesDown.get(node[0])) {
-                this.traverseUntilGold(childNode);
-            }
-        }
-    }
-
-    getSumofChildren(node, sum = 0) {
+    traverseUntilGold(node, nodes = []) {
+        this.total += nodes.reduce((acc, curr) => acc * curr, 1);
+        console.log(node, nodes);
         if (this.edgesDown.get(node[0])[0][0] !== ' other bag') {
             for (const childNode of this.edgesDown.get(node[0])) {
-                return this.getSumofChildren(childNode, sum + this.edgesDown.get(node[0]).reduce((acc, curr) => acc + curr[1], 0));
+                this.traverseUntilGold(childNode, nodes.concat(childNode[1]));
             }
         } else {
-            return sum;
+            nodes = []
         }
     }
 }
@@ -92,7 +86,7 @@ function part2() {
     const depths = new Map();
     graph.traverseUntilGold(['shiny gold bag', 1])
 
-    return graph.total;
+    return graph.total - 1;
 }
 
 console.log('The answer to day 7 part 1 is:', part1());
