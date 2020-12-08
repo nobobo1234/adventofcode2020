@@ -13,45 +13,48 @@ class Graph {
         this.edges = new Map();
         this.nodes = [];
         this.outerEdges = new Set();
-        this.lastEdge = [];
+        this.edgesDown = new Map();
         this.total = 0;
     }
 
     addNode(name) {
         this.nodes.push(name);
         this.edges.set(name, []);
+        this.edgesDown.set(name, []);
     }
 
     addEdge(node1, node2, number) {
         this.edges.get(node2).push([node1, number]);
+        this.edgesDown.get(node1).push([node2, number]);
     }
 
     traverseUp(node) {
-        if (this.edges.get(node).length) {
-            for (const parentNode of this.edges.get(node)) {
+        if (this.edges.get(node[0]).length) {
+            for (const parentNode of this.edges.get(node[0])) {
                 this.outerEdges.add(parentNode[0]);
-                this.traverseUp(parentNode[0]);
+                this.traverseUp(parentNode);
             }
         } else {
-            this.outerEdges.add(node);
+            this.outerEdges.add(node[0]);
         }
     }
 
-    traverseUntilGold(node, depth, total) {
-        if (node !== 'shiny gold bag') {
-            for (const parentNode of this.edges.get(node)) {
-                this.traverseUntilGold(parentNode[0], depth + 1, total.set(depth, [node, parentNode[1]]));
+    traverseUntilGold(node) {
+        if (this.edgesDown.get(node[0])[0][0] !== ' other bag') {
+            this.total += node[1] * this.edgesDown.get(node[0]).reduce((acc, curr) => acc + curr[1], 0);
+            for (const childNode of this.edgesDown.get(node[0])) {
+                this.traverseUntilGold(childNode);
+            }
+        }
+    }
+
+    getSumofChildren(node, sum = 0) {
+        if (this.edgesDown.get(node[0])[0][0] !== ' other bag') {
+            for (const childNode of this.edgesDown.get(node[0])) {
+                return this.getSumofChildren(childNode, sum + this.edgesDown.get(node[0]).reduce((acc, curr) => acc + curr[1], 0));
             }
         } else {
-            const allValues = [...total.values()].reverse();
-            console.log(allValues);
-            while (allValues.length) {
-                if (allValues.length === 1) {
-                    this.lastEdge.push(allValues[0]);
-                }
-                this.total += allValues.reduce((prev, acc) => prev * acc[1], 1);
-                allValues.shift();
-            }
+            return sum;
         }
     }
 }
@@ -80,15 +83,15 @@ function part1() {
             graph.addEdge(rule[0], bagName, bagNumber);
         }
     }
-    graph.traverseUp('shiny gold bag');
+    graph.traverseUp(['shiny gold bag', 1]);
 
     return graph.outerEdges.size;
 }
 
 function part2() {
-    for (const specialBag of containsNoOtherBag) {
-        graph.traverseUntilGold(specialBag, 1, new Map())
-    }
+    const depths = new Map();
+    graph.traverseUntilGold(['shiny gold bag', 1])
+
     return graph.total;
 }
 
